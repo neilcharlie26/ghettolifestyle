@@ -11,9 +11,15 @@ function addItem(name = '', quantity = 1, price = '') {
   $('items').append(row); update();
 }
 function update() {
-  document.body.dataset.paper = 'a4';
-  $('paper-label').textContent = 'A4 · COMPACT';
-  $('paper-print-style').textContent = '@page{size:A4 portrait;margin:8mm}';
+  const paper = $('paper-size').value;
+  const sizes = {a4: {label:'A4',width:210,height:297},letter: {label:'LETTER',width:215.9,height:279.4},legal: {label:'LEGAL',width:215.9,height:355.6}};
+  const selected = sizes[paper] || sizes.a4;
+  document.documentElement.style.setProperty('--paper-ratio', (selected.width - 16) + ' / ' + (selected.height - 18));
+  document.body.dataset.paper = paper;
+  $('paper-label').textContent = selected.label + ' · 20 ITEMS / PAGE';
+  document.documentElement.style.setProperty('--print-zoom', (selected.width - 16) * 96 / 25.4 / 490);
+  document.documentElement.style.setProperty('--sheet-height', ((selected.height - 17) * 490 / (selected.width - 16)) + 'px');
+  $('paper-print-style').textContent = '@page{size:' + selected.width + 'mm ' + selected.height + 'mm;margin:8mm}';
   const method = $('method').value;
   const isOther = method === 'Others';
   const needsReference = isOther ? $('other-online').value === 'yes' : !['Cash', 'Cash on delivery (COD)'].includes(method);
@@ -48,6 +54,14 @@ function update() {
   $('payment-status').classList.toggle('underpaid', balance > 0);
   $('payment-status').textContent = balance ? 'Kulang ang bayad ng ' + money(balance/100) + '. Full payment required bago mag-print / PDF.' : cents($('discount').value) > subtotal ? 'Discount is capped at the subtotal.' : total === 0 ? 'Enter products and payment details.' : 'Fully paid · Change: ' + money(change/100);
   paginateReceipt();
+  const widthScale = (selected.width - 16) * 96 / 25.4 / 490;
+  const tallest = Math.max(...[...document.querySelectorAll('.receipt-page')].map(page => {
+    const rect = page.getBoundingClientRect();
+    return rect.width ? rect.height * 490 / rect.width : 0;
+  }));
+  const printScale = Math.min(widthScale, (selected.height - 18) * 96 / 25.4 / (tallest + 12));
+  document.documentElement.style.setProperty('--print-zoom', printScale);
+  document.documentElement.style.setProperty('--sheet-height', ((selected.height - 18) * 96 / 25.4 / printScale) + 'px');
 }
 function paginateReceipt() {
   document.querySelectorAll('.receipt-continuation').forEach(page => page.remove());
@@ -84,7 +98,9 @@ function paginateReceipt() {
   });
 }
 function resetReceipt() {
+  const paper = $('paper-size').value;
   $('form').reset(); $('transaction').value = transactionNumber();
+  $('paper-size').value = paper;
   document.querySelectorAll('[data-clear]').forEach(button => button.click());
   const now = new Date(); $('date').value = [now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
   $('items').replaceChildren(); addItem();
