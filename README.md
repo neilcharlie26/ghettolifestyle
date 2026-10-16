@@ -10,7 +10,7 @@ Static receipt generator for Ghetto Lifestyle. HTML, CSS, and JavaScript only; n
 - Editable transaction number; required reference for electronic payments.
 - Cash, e-wallet, banking, card, remittance, and custom payment options.
 - Optional receiver signature using mouse, pen, or touch.
-- Compact A4 portrait layout for 40 single-line item rows. Long descriptions may need another page.
+- A4 portrait layout with up to 20 items per page, repeated transaction details, and final totals on the last page. Long descriptions may need additional space.
 - New receipt confirmation modal.
 
 ## Run
@@ -26,3 +26,4 @@ Import this repository, select Other as the framework preset, leave install/buil
 Enter the receipt and full payment, then select Print / Save as PDF. Choose your printer or Save as PDF, A4 portrait, 100% scale, and disable headers/footers. For thermal printing, use A4 thermal paper and select A4 in the printer driver. Actual printer output depends on driver settings.
 
 The supplied logo is included as logo.png. Google Fonts are optional; system fonts are used offline.
+
