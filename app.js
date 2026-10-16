@@ -94,4 +94,14 @@ for (const person of ['seller']) {
   };
 }
 resetReceipt();
+// Shrink the same A4 sheet to the available preview width, without reflowing it.
+const previewPanel = document.querySelector('.preview');
+const sizePreview = () => {
+  const style = getComputedStyle(previewPanel);
+  const available = previewPanel.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  const sheetWidth = 194 * 96 / 25.4;
+  $('receipt').style.setProperty('--receipt-scale', Math.min(1, available / sheetWidth));
+};
+new ResizeObserver(sizePreview).observe(previewPanel);
+sizePreview();
 
