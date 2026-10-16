@@ -169,3 +169,8 @@ body[data-paper] .receipt-page .totals{margin-top:10px;margin-bottom:10px}
  body[data-paper] .preview{padding:0!important;margin:0!important}
  body[data-paper] .receipt-page{margin-left:0!important;margin-right:0!important}
 }
+.shop-details{grid-column:1/-1;text-align:center;color:#263f32;padding-top:4px;border-top:1px solid #e3e9e1;font-family:Arial,sans-serif;line-height:1.45}
+.shop-details strong{display:block;font-size:10px;margin:3px 0}
+.shop-details p,.shop-details address{font-size:8px;font-style:normal;margin:2px 0;overflow-wrap:anywhere}
+.shop-details p:last-child{display:flex;justify-content:center;gap:4px 14px;flex-wrap:wrap}
+@media(max-width:360px){.shop-details strong{font-size:9px}.shop-details p,.shop-details address{font-size:7px}}
