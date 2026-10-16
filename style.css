@@ -160,3 +160,12 @@ body[data-paper] .receipt-page .receipt-title{margin:0;line-height:1;font-size:3
 }
 @media print{body[data-paper] .receipt-page{margin-left:auto;margin-right:auto}}
 @media screen{body[data-paper] .receipt-page{aspect-ratio:var(--paper-ratio,194 / 279)}}
+/* Fill the printable width, with compact shared rows for twenty items. */
+body[data-paper] .receipt-page td{font-size:8px;line-height:10px;padding:1px 4px}
+body[data-paper] .receipt-page .receipt-meta{padding-bottom:9px;margin-bottom:9px}
+body[data-paper] .receipt-page .totals{margin-top:10px;margin-bottom:10px}
+@media print{
+ html,body,main,.preview{width:100%!important;max-width:none!important}
+ body[data-paper] .preview{padding:0!important;margin:0!important}
+ body[data-paper] .receipt-page{margin-left:0!important;margin-right:0!important}
+}

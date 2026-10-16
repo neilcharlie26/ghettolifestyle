@@ -55,11 +55,8 @@ function update() {
   $('payment-status').textContent = balance ? 'Kulang ang bayad ng ' + money(balance/100) + '. Full payment required bago mag-print / PDF.' : cents($('discount').value) > subtotal ? 'Discount is capped at the subtotal.' : total === 0 ? 'Enter products and payment details.' : 'Fully paid · Change: ' + money(change/100);
   paginateReceipt();
   const widthScale = (selected.width - 16) * 96 / 25.4 / 490;
-  const tallest = Math.max(...[...document.querySelectorAll('.receipt-page')].map(page => {
-    const rect = page.getBoundingClientRect();
-    return rect.width ? rect.height * 490 / rect.width : 0;
-  }));
-  const printScale = Math.min(widthScale, (selected.height - 18) * 96 / 25.4 / (tallest + 12));
+  // Always use the complete printable width; do not shrink to the screen preview height.
+  const printScale = widthScale;
   document.documentElement.style.setProperty('--print-zoom', printScale);
   document.documentElement.style.setProperty('--sheet-height', ((selected.height - 18) * 96 / 25.4 / printScale) + 'px');
 }
