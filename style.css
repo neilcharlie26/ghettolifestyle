@@ -194,3 +194,23 @@ body[data-paper] .receipt-page .receipt-title{font-size:27px}
  .receipt-page .receipt-heading>span{font-size:5px}
  .receipt-page .receipt-heading small{font-size:5px;letter-spacing:0}
 }
+/* Clear item hierarchy and aligned numeric columns, shared by preview and print. */
+.receipt-page table{border-collapse:collapse;table-layout:fixed;width:100%;font-family:Arial,sans-serif;font-variant-numeric:tabular-nums}
+.receipt-page thead th{background:#183d2c;color:#fff;border:0;border-bottom:2px solid #b4cbb8;padding:7px 6px;font-size:8px;font-weight:700;letter-spacing:.35px;line-height:1.25;text-align:right;vertical-align:middle}
+.receipt-page thead th:first-child{width:46%;text-align:left;padding-left:9px}
+.receipt-page thead th:nth-child(2){width:10%;text-align:center}
+.receipt-page thead th:nth-child(3){width:21%}
+.receipt-page thead th:nth-child(4){width:23%;padding-right:9px}
+body[data-paper] .receipt-page tbody td{font-size:9px;line-height:12px;padding:4px 6px;border:0;border-bottom:1px solid #e3e9e1;vertical-align:top;color:#243b2d;background:transparent;text-align:right;overflow-wrap:anywhere}
+body[data-paper] .receipt-page tbody td:first-child{text-align:left;padding-left:9px;font-weight:500}
+body[data-paper] .receipt-page tbody td:nth-child(2){text-align:center;color:#657562}
+body[data-paper] .receipt-page tbody td:last-child{padding-right:9px;font-weight:700;color:#183d2c}
+.receipt-page tbody tr:nth-child(even){background:#f2f5ef}
+.receipt-page tbody tr:last-child td{border-bottom:2px solid #bdceba}
+@media screen and (max-width:480px){
+ .receipt-page thead th{padding:6px 3px;font-size:7px;letter-spacing:0}
+ body[data-paper] .receipt-page tbody td{padding:4px 3px;font-size:8px;line-height:11px}
+ .receipt-page thead th:first-child,body[data-paper] .receipt-page tbody td:first-child{padding-left:5px}
+ .receipt-page thead th:last-child,body[data-paper] .receipt-page tbody td:last-child{padding-right:5px}
+}
+body[data-paper] .receipt-page tbody td{padding-top:2px;padding-bottom:2px;line-height:11px}
