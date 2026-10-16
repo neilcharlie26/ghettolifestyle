@@ -1,0 +1,97 @@
+const $ = id => document.getElementById(id);
+const money = value => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(value);
+const numeric = value => Math.max(0, Number(value) || 0);
+const cents = value => Math.round(numeric(value) * 100);
+function transactionNumber() { return 'GL-' + new Date().toISOString().slice(0,10).replaceAll('-','') + '-' + crypto.randomUUID().slice(0,8).toUpperCase(); }
+function addItem(name = '', quantity = 1, price = '') {
+  const row = document.createElement('div'); row.className = 'item';
+  row.innerHTML = '<div class="item-top"><input class="name" aria-label="Product name" placeholder="Product name" maxlength="160"><button class="remove" type="button" aria-label="Remove product">×</button></div><div class="item-numbers"><label>Quantity<input class="quantity" type="number" min="1" max="1000000" step="1" required></label><label>Unit price (₱)<input class="price" type="number" min="0" max="1000000000" step="0.01" placeholder="0.00" required></label><output class="line-total"></output></div>';
+  row.querySelector('.name').value = name; row.querySelector('.quantity').value = quantity; row.querySelector('.price').value = price;
+  row.querySelector('.remove').onclick = () => { row.remove(); if (!$('items').children.length) addItem(); update(); };
+  $('items').append(row); update();
+}
+function update() {
+  document.body.dataset.paper = 'a4';
+  $('paper-label').textContent = 'A4 · COMPACT';
+  $('paper-print-style').textContent = '@page{size:A4 portrait;margin:8mm}';
+  const method = $('method').value;
+  const isOther = method === 'Others';
+  const needsReference = isOther ? $('other-online').value === 'yes' : !['Cash', 'Cash on delivery (COD)'].includes(method);
+  $('other-method-field').hidden = !isOther;
+  $('other-online-field').hidden = !isOther;
+  $('other-method').required = isOther;
+  $('reference-field').hidden = !needsReference;
+  $('reference').required = needsReference;
+  $('r-reference-row').hidden = !needsReference;
+  $('r-reference').textContent = $('reference').value.trim() || 'Pending';
+  $('r-customer').textContent = $('customer').value.trim() || 'Walk-in customer';
+  $('r-seller').textContent = $('seller').value.trim() || 'Received by';
+  $('r-transaction').textContent = $('transaction').value;
+  $('r-date').textContent = $('date').value ? new Date($('date').value + 'T12:00:00').toLocaleDateString('en-PH', {month:'long',day:'numeric',year:'numeric'}) : '—';
+  $('r-method').textContent = isOther ? $('other-method').value.trim() || 'Others' : method;
+  $('r-items').replaceChildren(); let subtotal = 0;
+  document.querySelectorAll('.item').forEach(row => {
+    const qty = numeric(row.querySelector('.quantity').value); const unit = cents(row.querySelector('.price').value); const total = Math.round(qty * unit); subtotal += total;
+    row.querySelector('output').textContent = money(total / 100);
+    const tr = document.createElement('tr');
+    [row.querySelector('.name').value.trim() || 'Product name', qty, money(unit / 100), money(total / 100)].forEach(value => { const td = document.createElement('td'); td.textContent = value; tr.append(td); });
+    $('r-items').append(tr);
+  });
+  const discount = Math.min(subtotal, cents($('discount').value)); const total = subtotal - discount; const paid = cents($('paid').value); const change = Math.max(0,paid-total); const balance = Math.max(0,total-paid);
+  $('paid').required = true;
+  $('paid').min = (total / 100).toFixed(2);
+  $('paid').setCustomValidity(balance > 0 ? 'Kulang ang bayad ng ' + money(balance / 100) + '. Dapat bayad nang buo bago mag-print o mag-save ng PDF.' : '');
+  for (const [key,value] of Object.entries({subtotal,discount,total,paid,change,balance})) $('r-'+key).textContent = money(value/100);
+  $('discount-row').hidden = discount === 0; $('balance-row').hidden = balance === 0;
+  $('r-state').textContent = total === 0 ? 'DRAFT' : balance === 0 ? 'PAID' : paid > 0 ? 'PARTIALLY PAID' : 'AWAITING PAYMENT';
+  $('r-state').classList.toggle('settled', total > 0 && balance === 0);
+  $('payment-status').classList.toggle('underpaid', balance > 0);
+  $('payment-status').textContent = balance ? 'Kulang ang bayad ng ' + money(balance/100) + '. Full payment required bago mag-print / PDF.' : cents($('discount').value) > subtotal ? 'Discount is capped at the subtotal.' : total === 0 ? 'Enter products and payment details.' : 'Fully paid · Change: ' + money(change/100);
+}
+function resetReceipt() {
+  $('form').reset(); $('transaction').value = transactionNumber();
+  document.querySelectorAll('[data-clear]').forEach(button => button.click());
+  const now = new Date(); $('date').value = [now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  $('items').replaceChildren(); addItem();
+}
+$('form').addEventListener('input',update); $('form').addEventListener('change',update);
+$('add').onclick = () => addItem();
+$('new').onclick = () => { $('new-receipt-modal').returnValue = ''; $('new-receipt-modal').showModal(); };
+$('new-receipt-modal').addEventListener('close', () => {
+  if ($('new-receipt-modal').returnValue === 'confirm') {
+    resetReceipt();
+    $('customer').focus();
+  }
+});
+$('form').onsubmit = event => { event.preventDefault(); for (const id of ['other-method','reference']) { const field = $(id); if (field.required && !field.value.trim()) { field.focus(); field.setCustomValidity(id === 'reference' ? 'Enter the payment reference number.' : 'Enter the payment method.'); field.reportValidity(); field.setCustomValidity(''); return; } } const rows = [...document.querySelectorAll('.item')]; const invalid = rows.find(row => !row.querySelector('.name').value.trim()); if (invalid) { invalid.querySelector('.name').focus(); invalid.querySelector('.name').setCustomValidity('Enter a product name.'); invalid.querySelector('.name').reportValidity(); invalid.querySelector('.name').setCustomValidity(''); return; } update(); window.print(); };
+// Fixed high-resolution canvases keep signatures sharp without losing strokes on resize.
+for (const person of ['seller']) {
+  const canvas = $(person + '-pad');
+  const context = canvas.getContext('2d');
+  const image = $(person + '-signature');
+  let activePointer = null;
+  const position = event => {
+    const box = canvas.getBoundingClientRect();
+    return [(event.clientX - box.left) * canvas.width / box.width, (event.clientY - box.top) * canvas.height / box.height];
+  };
+  context.strokeStyle = '#163148'; context.fillStyle = '#163148';
+  context.lineWidth = 5; context.lineCap = 'round'; context.lineJoin = 'round';
+  const sync = () => { image.src = canvas.toDataURL('image/png'); image.hidden = false; };
+  canvas.addEventListener('pointerdown', event => {
+    if (activePointer !== null || event.button > 0) return;
+    event.preventDefault(); activePointer = event.pointerId; canvas.setPointerCapture(activePointer);
+    const [x,y] = position(event); context.beginPath(); context.arc(x,y,2.5,0,Math.PI*2); context.fill();
+    context.beginPath(); context.moveTo(x,y); sync();
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (activePointer !== event.pointerId) return;
+    event.preventDefault(); context.lineTo(...position(event)); context.stroke(); sync();
+  });
+  const end = event => { if (activePointer === event.pointerId) { activePointer = null; sync(); } };
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end); canvas.addEventListener('lostpointercapture', end);
+  document.querySelector('[data-clear="' + person + '"]').onclick = () => {
+    activePointer = null; context.clearRect(0,0,canvas.width,canvas.height); image.removeAttribute('src'); image.hidden = true;
+  };
+}
+resetReceipt();
+

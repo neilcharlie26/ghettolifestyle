@@ -1,0 +1,6 @@
+*-preview.png
+receipt-reference.png
+.vercel/
+node_modules/
+.env
+.env.*
