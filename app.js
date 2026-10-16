@@ -30,6 +30,7 @@ function update() {
   $('r-date').textContent = $('date').value ? new Date($('date').value + 'T12:00:00').toLocaleDateString('en-PH', {month:'long',day:'numeric',year:'numeric'}) : '—';
   $('r-method').textContent = isOther ? $('other-method').value.trim() || 'Others' : method;
   $('r-items').replaceChildren(); let subtotal = 0;
+  $('receipt').classList.toggle('dense-items', document.querySelectorAll('.item').length > 20);
   document.querySelectorAll('.item').forEach(row => {
     const qty = numeric(row.querySelector('.quantity').value); const unit = cents(row.querySelector('.price').value); const total = Math.round(qty * unit); subtotal += total;
     row.querySelector('output').textContent = money(total / 100);
@@ -94,14 +95,4 @@ for (const person of ['seller']) {
   };
 }
 resetReceipt();
-// Shrink the same A4 sheet to the available preview width, without reflowing it.
-const previewPanel = document.querySelector('.preview');
-const sizePreview = () => {
-  const style = getComputedStyle(previewPanel);
-  const available = previewPanel.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-  const sheetWidth = 194 * 96 / 25.4;
-  $('receipt').style.setProperty('--receipt-scale', Math.min(1, available / sheetWidth));
-};
-new ResizeObserver(sizePreview).observe(previewPanel);
-sizePreview();
 
