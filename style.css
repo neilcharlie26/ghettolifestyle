@@ -174,3 +174,23 @@ body[data-paper] .receipt-page .totals{margin-top:10px;margin-bottom:10px}
 .shop-details p,.shop-details address{font-size:8px;font-style:normal;margin:2px 0;overflow-wrap:anywhere}
 .shop-details p:last-child{display:flex;justify-content:center;gap:4px 14px;flex-wrap:wrap}
 @media(max-width:360px){.shop-details strong{font-size:9px}.shop-details p,.shop-details address{font-size:7px}}
+/* Three aligned header columns: logo, shop details, receipt title. */
+.receipt-page .receipt-banner{grid-template-columns:64px minmax(0,1fr) 104px;gap:12px;align-items:center}
+.receipt-page .receipt-banner>img{grid-column:1;grid-row:1}
+.receipt-page .shop-details{grid-column:2;grid-row:1;border:0;padding:0;text-align:center;min-width:0}
+.receipt-page .receipt-heading{grid-column:3;grid-row:1}
+.receipt-page .shop-details strong{font-size:10px;line-height:1.25;margin:0 0 4px}
+.receipt-page .shop-details p,.receipt-page .shop-details address{font-size:7px;line-height:1.4;margin:2px 0}
+.receipt-page .shop-details p:last-child{display:block}
+.receipt-page .shop-details p:last-child span{display:block}
+.receipt-page .receipt-heading>span{font-size:7px;letter-spacing:0}
+body[data-paper] .receipt-page .receipt-title{font-size:27px}
+@media screen and (max-width:480px){
+ .receipt-page .receipt-banner{grid-template-columns:44px minmax(0,1fr) 75px;gap:6px;padding:10px}
+ body[data-paper] .receipt-page .receipt-banner img{width:44px;height:44px}
+ .receipt-page .shop-details strong{font-size:8px}
+ .receipt-page .shop-details p,.receipt-page .shop-details address{font-size:6px}
+ body[data-paper] .receipt-page .receipt-title{font-size:21px}
+ .receipt-page .receipt-heading>span{font-size:5px}
+ .receipt-page .receipt-heading small{font-size:5px;letter-spacing:0}
+}
